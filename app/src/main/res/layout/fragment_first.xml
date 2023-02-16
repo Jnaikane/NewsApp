@@ -7,6 +7,6 @@
     tools:context="com.codingtest.newsapp.fragments.FirstFragment">
 
 
-     
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
