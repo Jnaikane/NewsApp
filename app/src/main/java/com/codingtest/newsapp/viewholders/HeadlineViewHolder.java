@@ -1,20 +1,25 @@
 package com.codingtest.newsapp.viewholders;
 
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
+import com.codingtest.newsapp.R;
 
 public class HeadlineViewHolder extends RecyclerView.ViewHolder{
-    public TextView printerCount;
-    public TextView printerName;
+    public CardView headline_cardview;
+    public TextView text_title,text_source;
+    public ImageView image_headline;
     View view;
 
     public HeadlineViewHolder(@NonNull View itemView) {
         super(itemView);
-      //  printerCount = itemView.findViewById(R.id.printerCount);
-      //  printerName = itemView.findViewById(R.id.printerName);
+        text_title = itemView.findViewById(R.id.text_title);
+        text_source = itemView.findViewById(R.id.text_source);
+        headline_cardview = itemView.findViewById(R.id.headline_cardview);
+        image_headline = itemView.findViewById(R.id.image_headline);
         view = itemView;
     }
 }
