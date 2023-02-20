@@ -23,5 +23,4 @@ public class SourceModel implements Serializable {
         this.name = name;
     }
 
-
 }

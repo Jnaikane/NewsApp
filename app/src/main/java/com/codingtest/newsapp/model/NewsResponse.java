@@ -32,4 +32,5 @@ public class NewsResponse implements Serializable {
     public void setArticles(List<NewsArticleModel> articles) {
         this.articles = articles;
     }
+
 }
