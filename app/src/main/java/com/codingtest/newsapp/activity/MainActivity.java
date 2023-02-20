@@ -1,18 +1,24 @@
 package com.codingtest.newsapp.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+
+import com.codingtest.newsapp.R;
 import com.codingtest.newsapp.adapter.HeadLineAdapter;
 import com.codingtest.newsapp.clicklisteners.SelectListener;
 import com.codingtest.newsapp.model.CountryModel;
 import com.codingtest.newsapp.model.NewsArticleModel;
 import com.codingtest.newsapp.model.NewsResponse;
+import com.codingtest.newsapp.utils.AppUtils;
 import com.codingtest.newsapp.utils.Constants;
 import com.codingtest.newsapp.utils.ProgressDialogUtils;
 import com.codingtest.newsapp.utils.Resource;
 import com.codingtest.newsapp.viewmodel.HeadlinesViewModel;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.util.Log;
 import android.view.View;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -21,6 +27,8 @@ import com.codingtest.newsapp.databinding.ActivityMainBinding;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
     private HeadLineAdapter headLineAdapter;
     String  countryCode,countryName;
     FirebaseAnalytics analytics;
+    SharedPreferences sharedPref;
+    SharedPreferences.Editor prefEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +58,17 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
         analytics=FirebaseAnalytics.getInstance(this);
         headlineViewModel = new ViewModelProvider(this).get(HeadlinesViewModel.class);
         setSupportActionBar(binding.toolbar);
+        sharedPref = getSharedPreferences("LastSetting",MODE_PRIVATE);
+        int spinnerValue = sharedPref.getInt("userChoiceSpinner",-1);
+        if(spinnerValue != -1) {
+            // set the selected value of the spinner
+            binding.spinnerHeadline.setSelection(spinnerValue);
+        }
 
+
+
+
+        // Country Dropdown List
         countryList.add(new CountryModel("India", "in"));
         countryList.add(new CountryModel("USA", "us"));
         countryList.add(new CountryModel("Argentina", "ar"));
@@ -56,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
         countryList.add(new CountryModel("Brazil", "br"));
         countryList.add(new CountryModel("China", "cn"));
 
+        // Country set in adapter and selected from dropdown
         ArrayAdapter<CountryModel> countryAdapter=new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_dropdown_item,countryList);
           binding.spinnerHeadline.setAdapter(countryAdapter);
         binding.spinnerHeadline.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -64,11 +85,18 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
 
                  countryCode = countryList.get(i).countryIsoCode;
                  countryName = countryList.get(i).countryName;
-                 getNewsArticleData(countryCode, Constants.API_KEY);
-                SharedPreferences.Editor editor = getSharedPreferences("ISOCOUNTRYCODE", MODE_PRIVATE).edit();
-                editor.putString("ISOCountry", countryCode);
-                editor.putString("ISOcode", countryName);
-                editor.commit();
+                if (AppUtils.isInternetAvailable(MainActivity.this)) {
+                    getNewsArticleData(countryCode, Constants.API_KEY);
+                } else {
+                    Toast.makeText(MainActivity.this,R.string.please_check_internet_connection,Toast.LENGTH_LONG).show();
+                }
+
+                int userChoice = binding.spinnerHeadline.getSelectedItemPosition();
+                sharedPref = getSharedPreferences("LastSetting",0);
+                prefEditor = sharedPref.edit();
+                prefEditor.putInt("userChoiceSpinner",userChoice);
+                prefEditor.commit();
+
             }
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
